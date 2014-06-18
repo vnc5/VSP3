@@ -1,2 +1,2 @@
-HAW-BAI5-VSP3
+HAW-BAI5-VSP2 - Verteilter ggt Algorithmus
 ====
