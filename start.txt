@@ -1,1 +1,1 @@
->java datasource.DataSource 8 1 1000 | java -cp out/production/VSP3 de.haw.Main
+java datasource.DataSource 8 1 1000 | java -cp out/production/VSP3 de.haw.Main 225.10.1.2 15008 A

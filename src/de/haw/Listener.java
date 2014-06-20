@@ -6,14 +6,13 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 public class Listener implements Runnable {
-	private static final int PACKET_LENGTH = 34;
 	private InetAddress address;
 	private MulticastSocket socket;
 	private DatagramPacket packet;
 
 	public Listener(final String address, final int port) throws IOException {
 		this.address = InetAddress.getByName(address);
-		packet = new DatagramPacket(new byte[PACKET_LENGTH], PACKET_LENGTH);
+		packet = new DatagramPacket(new byte[Packet.PACKET_LENGTH], Packet.PACKET_LENGTH);
 		socket = new MulticastSocket(port);
 		socket.joinGroup(this.address);
 	}

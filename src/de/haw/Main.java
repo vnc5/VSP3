@@ -1,25 +1,26 @@
 package de.haw;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
 
-	private static final String ADDRESS = "225.10.1.2";
-	private static final int PORT = 15008;
 
     public static void main(String[] args) throws IOException {
-		final Reader reader = new Reader();
-		new Thread(reader).start();
+//		NetworkInterface.getByName(args[0]);
+		final String address = args[0];
+		final int port = Integer.parseInt(args[1]);
+		final String stationClass = args[2];
 
-		final Listener listener = new Listener(ADDRESS, PORT);
+		final byte[] buffer = new byte[Packet.PAYLOAD_LENGTH];
+		readFromDataSource(buffer);
+
+		final Listener listener = new Listener(address, port);
 		new Thread(listener).start();
 
-		final ScheduledFuture<?> sender = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Sender(ADDRESS, PORT), 1, 1, TimeUnit.SECONDS);
+		final ScheduledFuture<?> sender = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Sender(address, port), 1, 1, TimeUnit.SECONDS);
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -28,4 +29,18 @@ public class Main {
 			}
 		});
     }
+
+	private static void readFromDataSource(final byte[] buffer) {
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					for (;;) {
+						System.in.read(buffer);
+					}
+				} catch (IOException e) {
+					System.out.println("Ausgeflüstert");
+				}
+			}
+		}).start();
+	}
 }
