@@ -53,21 +53,31 @@ public class Main implements Runnable {
 			}
 
 			int slot = getRandomUnusedSlot();
-			sender.send(slot, 0);
+			sender.send(slot);
 
 			for (;;) {
+				System.out.println("It's " + getTime() + "\nStart Frame. Sleeping: " + (Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH)));
+
 				// Sleep till next Frame.
 				Thread.sleep(Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH));
 
 				// Get average time delta from A classes
-				timeDelta = listener.endFrame();
+				long currentDelta = listener.endFrame();
+				timeDelta += currentDelta;
 
-				long timeToSend = Math.round(slot * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2) + timeDelta;
-				if (timeToSend > 0) {
-					slot = getRandomUnusedSlot();
-					sender.send(slot, timeToSend);
-				}
+				System.out.println("Time Delta: " + timeDelta);
+
 				listener.startFrame();
+
+				long newOffset = getTime() % Listener.FRAME_LENGTH;
+
+				long timeToSend = Math.round((slot - 1) * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2);
+				if (timeToSend > currentDelta) {
+					Thread.sleep(timeToSend + currentDelta);
+					listener.processLastPacket();
+					slot = getRandomUnusedSlot();
+					sender.send(slot);
+				}
 			}
 		} catch (InterruptedException e) {
 			// idc

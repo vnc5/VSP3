@@ -54,7 +54,6 @@ public class Listener implements Runnable {
 				lastPacketTimestamp = Main.getTime();
 				System.arraycopy(data, 0, lastPacket, 0, Packet.PACKET_LENGTH);
 				lastSlot = slot;
-				System.out.println("received: " + new String(data));
 			}
 		} catch (IOException e) {
 			System.out.println("Socket closed");
@@ -79,14 +78,19 @@ public class Listener implements Runnable {
 		packetCount = 0;
 		accDelta = 0;
 		lastSlot = 0;
+		lastSlotCollided = true;
 		usedSlots.clear();
 	}
 
 	public long endFrame() {
+		processLastPacket();
+		return Math.round(accDelta / (double) packetCount);
+	}
+
+	public void processLastPacket() {
 		if (!lastSlotCollided) {
 			process();
 		}
-		return Math.round(accDelta / (double) packetCount);
 	}
 
 	public void setFrameStart(long timestamp) {

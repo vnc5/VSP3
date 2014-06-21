@@ -21,29 +21,14 @@ public class Sender {
 		socket.setTimeToLive(1);
 	}
 
-	/**
-	 * Fire and forget.
-	 * @param slot
-	 * @param delay
-	 */
-	public void send(final int slot, final long delay) {
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					Thread.sleep(delay);
-
-					payload.setSlot(slot);
-					packet.setData(payload.getBytes());
-					try {
-						socket.send(packet);
-						System.out.println("send next slot: " + slot);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}).start();
+	public void send(final int slot) {
+		payload.setSlot(slot);
+		packet.setData(payload.getBytes());
+		try {
+			socket.send(packet);
+			System.out.println("Sending next Slot: " + slot);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
