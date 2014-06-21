@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Sender {
-	private MulticastSocket socket;
-	private DatagramPacket packet;
-	private Packet payload;
+	private final MulticastSocket socket;
+	private final DatagramPacket packet;
+	private final Packet payload;
 
-	public Sender(final String address, final int port, char stationClass, final byte[] dataSource) throws IOException {
+	public Sender(final String address, final int port, char stationClass,
+			final byte[] dataSource) throws IOException {
 		payload = new Packet(stationClass);
 		payload.setPayload(dataSource);
-		packet = new DatagramPacket(new byte[0], 0, InetAddress.getByName(address), port);
+		packet = new DatagramPacket(new byte[0], 0,
+				InetAddress.getByName(address), port);
 
 		socket = new MulticastSocket();
 		socket.setTimeToLive(1);
@@ -23,11 +23,13 @@ public class Sender {
 
 	/**
 	 * Fire and forget.
+	 * 
 	 * @param slot
 	 * @param delay
 	 */
 	public void send(final int slot, final long delay) {
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Thread.sleep(delay);
