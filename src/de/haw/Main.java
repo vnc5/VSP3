@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-public class Main {
+public class Main implements Runnable {
 	public static long timeDelta = 0;
 
 	private static Random rnd = new Random();
@@ -42,24 +42,38 @@ public class Main {
 
 	private static void start() {
 		new Thread(listener).start();
+		new Thread(new Main()).start();
+	}
 
-		int slot = getRandomUnusedSlot();
-		sender.send(slot, 0);
-
+	public void run() {
 		try {
-			Thread.sleep(Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH));
-
-			timeDelta = listener.endFrame();
-
-			long timeToSend = Math.round(slot * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2) + timeDelta;
-			if (timeToSend > 0) {
-				slot = getRandomUnusedSlot();
-				sender.send(slot, timeToSend);
+			// Sleep till next Slot.
+			long timeOffsetInSlot = (long) ((Listener.SLOT_LENGTH / 2) - ((getTime() % Listener.FRAME_LENGTH) % Listener.SLOT_LENGTH));
+			if (timeOffsetInSlot >= 0) {
+				Thread.sleep(timeOffsetInSlot);
+			} else {
+				Thread.sleep((long) (Listener.SLOT_LENGTH + timeOffsetInSlot));
 			}
-			listener.startFrame();
 
+			int slot = getRandomUnusedSlot();
+			sender.send(slot, 0);
+
+			for (;;) {
+				// Sleep till next Frame.
+				Thread.sleep(Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH));
+
+				// Get average time delta from A classes
+				timeDelta = listener.endFrame();
+
+				long timeToSend = Math.round(slot * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2) + timeDelta;
+				if (timeToSend > 0) {
+					slot = getRandomUnusedSlot();
+					sender.send(slot, timeToSend);
+				}
+				listener.startFrame();
+			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			// idc
 		}
 	}
 
