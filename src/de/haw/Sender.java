@@ -28,7 +28,6 @@ public class Sender {
 	 */
 	public void send(final int slot, final long delay) {
 		new Thread(new Runnable() {
-			@Override
 			public void run() {
 				try {
 					Thread.sleep(delay);

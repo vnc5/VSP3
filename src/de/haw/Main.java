@@ -19,10 +19,11 @@ public class Main implements Runnable {
 		final char stationClass = args[2].charAt(0);
 
 		final byte[] buffer = new byte[Packet.PAYLOAD_LENGTH];
-		readFromDataSource(buffer);
 
 		listener = new Listener(address, port);
 		sender = new Sender(address, port, stationClass, buffer);
+
+		readFromDataSource(buffer);
 
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
