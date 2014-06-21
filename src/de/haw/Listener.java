@@ -28,7 +28,7 @@ public class Listener implements Runnable {
 	private long lastPacketTimestamp;
 	private ByteBuffer packetByteBuffer = ByteBuffer.wrap(lastPacket);
 
-	public final Set<Byte> usedSlots = Collections.synchronizedSet(new HashSet<Byte>()); // in next frame
+	public final Set usedSlots = Collections.synchronizedSet(new HashSet()); // in next frame
 
 	public Listener(final String address, final int port) throws IOException {
 		this.address = InetAddress.getByName(address);
