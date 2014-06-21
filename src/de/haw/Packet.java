@@ -29,7 +29,7 @@ public class Packet {
 	}
 
 	public byte[] getBytes() {
-		bb.putChar(stationClass);
+		bb.put((byte) stationClass);
 		bb.put(payload);
 		bb.put(slot);
 		bb.putLong(Main.getTime());

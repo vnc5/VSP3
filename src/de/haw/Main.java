@@ -3,24 +3,20 @@ package de.haw;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 public class Main implements Runnable {
 	public static long timeDelta = 0;
 
 	private static Random rnd = new Random();
 
-	private static String address;
-	private static int port;
-	private static char stationClass;
 	private static Listener listener;
 	private static Sender sender;
 
     public static void main(String[] args) throws IOException {
 //		NetworkInterface.getByName(args[0]);
-		address = args[0];
-		port = Integer.parseInt(args[1]);
-		stationClass = args[2].charAt(0);
+		final String address = args[0];
+		final int port = Integer.parseInt(args[1]);
+		final char stationClass = args[2].charAt(0);
 
 		final byte[] buffer = new byte[Packet.PAYLOAD_LENGTH];
 		readFromDataSource(buffer);
