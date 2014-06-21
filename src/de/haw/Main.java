@@ -1,10 +1,14 @@
 package de.haw;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class Main {
 	public static long timeDelta = 0;
+
+	private static Random rnd = new Random();
 
 	private static String address;
 	private static int port;
@@ -38,7 +42,34 @@ public class Main {
 
 	private static void start() {
 		new Thread(listener).start();
-		sender.send(new Random().nextInt(Listener.SLOTS_PER_FRAME + 1));
+
+		int slot = getRandomUnusedSlot();
+		sender.send(slot, 0);
+
+		try {
+			Thread.sleep(Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH));
+
+			timeDelta = listener.endFrame();
+
+			long timeToSend = Math.round(slot * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2) + timeDelta;
+			if (timeToSend > 0) {
+				slot = getRandomUnusedSlot();
+				sender.send(slot, timeToSend);
+			}
+			listener.startFrame();
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static int getRandomUnusedSlot() {
+		HashSet<Byte> diff = new HashSet<Byte>();
+		for (int i = 0; i < Listener.SLOTS_PER_FRAME; i++) {
+			diff.add((byte) (i + 1));
+		}
+		diff.removeAll(listener.usedSlots);
+		return diff.toArray(new Byte[diff.size()])[rnd.nextInt(diff.size())];
 	}
 
 	private static void readFromDataSource(final byte[] buffer) {

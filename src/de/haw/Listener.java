@@ -5,7 +5,9 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Listener implements Runnable {
 	public static final int FRAME_LENGTH = 1000;
@@ -18,10 +20,15 @@ public class Listener implements Runnable {
 
 	private long frameStart;
 	private int packetCount = 0; // of A classes per frame
-	private long accTime = 0; // accumulated timestamps of A classes per frame
+	private long accDelta = 0; // accumulated deltas of A classes per frame
+
 	private byte lastSlot = 0;
+	private boolean lastSlotCollided = true; // whether or not the last packet collided
 	private byte[] lastPacket = new byte[Packet.PACKET_LENGTH];
-	public HashSet<Byte> usedSlots = new HashSet<Byte>(); // in next frame
+	private long lastPacketTimestamp;
+	private ByteBuffer packetByteBuffer = ByteBuffer.wrap(lastPacket);
+
+	public final Set<Byte> usedSlots = Collections.synchronizedSet(new HashSet<Byte>()); // in next frame
 
 	public Listener(final String address, final int port) throws IOException {
 		this.address = InetAddress.getByName(address);
@@ -38,10 +45,13 @@ public class Listener implements Runnable {
 				byte slot = getCurrentSlot();
 				byte[] data = packet.getData();
 
+				lastSlotCollided = slot == lastSlot;
+
 				if (slot != lastSlot && lastSlot != 0) {
-					process(lastPacket);
+					process();
 				}
 
+				lastPacketTimestamp = Main.getTime();
 				System.arraycopy(data, 0, lastPacket, 0, Packet.PACKET_LENGTH);
 				lastSlot = slot;
 				System.out.println("received: " + new String(data));
@@ -51,14 +61,14 @@ public class Listener implements Runnable {
 		}
 	}
 
-	private void process(byte[] data) {
-		char stationClass = (char) data[Packet.CLASS_INDEX];
-		byte slot = data[Packet.SLOT_INDEX];
-		long timestamp = ByteBuffer.wrap(data).getLong(Packet.TIMESTAMP_INDEX);
+	private void process() {
+		char stationClass = (char) lastPacket[Packet.CLASS_INDEX];
+		byte slot = lastPacket[Packet.SLOT_INDEX];
+		long timestamp = packetByteBuffer.getLong(Packet.TIMESTAMP_INDEX);
 
 		if (stationClass == 'A') {
 			packetCount++;
-			accTime += timestamp;
+			accDelta += timestamp - lastPacketTimestamp;
 		}
 
 		usedSlots.add(slot);
@@ -67,9 +77,16 @@ public class Listener implements Runnable {
 	public void startFrame() {
 		frameStart = Main.getTime();
 		packetCount = 0;
-		accTime = 0;
+		accDelta = 0;
 		lastSlot = 0;
 		usedSlots.clear();
+	}
+
+	public long endFrame() {
+		if (!lastSlotCollided) {
+			process();
+		}
+		return Math.round(accDelta / (double) packetCount);
 	}
 
 	public void setFrameStart(long timestamp) {
