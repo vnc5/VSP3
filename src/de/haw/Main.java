@@ -69,8 +69,6 @@ public class Main implements Runnable {
 
 				listener.startFrame();
 
-				long newOffset = getTime() % Listener.FRAME_LENGTH;
-
 				long timeToSend = Math.round((slot - 1) * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2);
 				if (timeToSend > currentDelta) {
 					Thread.sleep(timeToSend + currentDelta);

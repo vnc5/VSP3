@@ -93,10 +93,6 @@ public class Listener implements Runnable {
 		}
 	}
 
-	public void setFrameStart(long timestamp) {
-		frameStart = timestamp;
-	}
-
 	private byte getCurrentSlot() {
 		long now = Main.getTime();
 		return (byte) (Math.floor((now - frameStart) / SLOT_LENGTH) + 1);
