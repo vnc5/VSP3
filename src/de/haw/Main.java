@@ -75,12 +75,12 @@ public class Main implements Runnable {
 	}
 
 	private static int getRandomUnusedSlot() {
-		HashSet diff = new HashSet();
+		HashSet<Byte> diff = new HashSet<Byte>();
 		for (int i = 0; i < Listener.SLOTS_PER_FRAME; i++) {
 			diff.add((byte) (i + 1));
 		}
 		diff.removeAll(listener.usedSlots);
-		return ((Integer) diff.toArray(new Byte[diff.size()])[rnd.nextInt(diff.size())]).intValue();
+		return diff.toArray(new Byte[diff.size()])[rnd.nextInt(diff.size())];
 	}
 
 	private static void readFromDataSource(final byte[] buffer) {
