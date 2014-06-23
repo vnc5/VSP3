@@ -17,6 +17,7 @@ public class Main implements Runnable {
 		final String address = args[0];
 		final int port = Integer.parseInt(args[1]);
 		final char stationClass = args[2].charAt(0);
+		timeDelta = args.length == 4 ? Long.parseLong(args[3]) : 0;
 
 		final byte[] buffer = new byte[Packet.PAYLOAD_LENGTH];
 
