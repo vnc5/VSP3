@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,10 +31,11 @@ public class Listener implements Runnable {
 
 	public final Set<Byte> usedSlots = Collections.synchronizedSet(new HashSet<Byte>()); // in next frame
 
-	public Listener(final String address, final int port) throws IOException {
+	public Listener(final String address, final int port, NetworkInterface networkInterface) throws IOException {
 		this.address = InetAddress.getByName(address);
 		packet = new DatagramPacket(new byte[Packet.PACKET_LENGTH], Packet.PACKET_LENGTH);
 		socket = new MulticastSocket(port);
+        socket.setNetworkInterface(networkInterface);
 		socket.joinGroup(this.address);
 	}
 

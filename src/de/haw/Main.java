@@ -1,6 +1,7 @@
 package de.haw;
 
 import java.io.IOException;
+import java.net.NetworkInterface;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -13,16 +14,16 @@ public class Main implements Runnable {
 	private static Sender sender;
 
     public static void main(String[] args) throws IOException {
-//		NetworkInterface.getByName(args[0]);
-		final String address = args[0];
-		final int port = Integer.parseInt(args[1]);
-		final char stationClass = args[2].charAt(0);
-		timeDelta = args.length == 4 ? Long.parseLong(args[3]) : 0;
+        NetworkInterface networkInterface = NetworkInterface.getByName(args[0]);
+		final String address = args[1];
+		final int port = Integer.parseInt(args[2]);
+		final char stationClass = args[3].charAt(0);
+		timeDelta = args.length == 5 ? Long.parseLong(args[4]) : 0;
 
 		final byte[] buffer = new byte[Packet.PAYLOAD_LENGTH];
 
-		listener = new Listener(address, port);
-		sender = new Sender(address, port, stationClass, buffer);
+		listener = new Listener(address, port, networkInterface);
+		sender = new Sender(address, port, stationClass, buffer, networkInterface);
 
 		readFromDataSource(buffer);
 
@@ -72,7 +73,7 @@ public class Main implements Runnable {
 
 				long timeToSend = Math.round((slot - 1) * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2);
 				if (timeToSend > currentDelta) {
-					Thread.sleep(timeToSend + currentDelta);
+					Thread.sleep(Math.max((timeToSend + currentDelta) % Listener.FRAME_LENGTH, 0));
 					listener.processLastPacket();
 					slot = getRandomUnusedSlot();
 					sender.send(slot);
