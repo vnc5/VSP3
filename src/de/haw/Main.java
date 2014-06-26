@@ -58,8 +58,6 @@ public class Main implements Runnable {
 			sender.send(slot);
 
 			for (;;) {
-				System.out.println("It's " + getTime() + "\nStart Frame. Sleeping: " + (Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH)));
-
 				// Sleep till next Frame.
 				Thread.sleep(Listener.FRAME_LENGTH - (getTime() % Listener.FRAME_LENGTH));
 
@@ -67,13 +65,11 @@ public class Main implements Runnable {
 				long currentDelta = listener.endFrame();
 				timeDelta += currentDelta;
 
-				System.out.println("Time Delta: " + timeDelta);
-
 				listener.startFrame();
 
 				long timeToSend = Math.round((slot - 1) * Listener.SLOT_LENGTH + Listener.SLOT_LENGTH / 2);
 				if (timeToSend > currentDelta) {
-					Thread.sleep(Math.max((timeToSend + currentDelta) % Listener.FRAME_LENGTH, 0));
+					Thread.sleep(Math.max((timeToSend - currentDelta) % Listener.FRAME_LENGTH, 0));
 					listener.processLastPacket();
 					slot = getRandomUnusedSlot();
 					sender.send(slot);

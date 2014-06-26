@@ -28,7 +28,6 @@ public class Sender {
 		packet.setData(payload.getBytes());
 		try {
 			socket.send(packet);
-			System.out.println("Sending next Slot: " + slot);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

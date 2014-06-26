@@ -86,6 +86,7 @@ public class Listener implements Runnable {
 
 	public long endFrame() {
 		processLastPacket();
+		System.out.println("Frame: " + Math.round(frameStart / 1000d) + ", AccDelta: " + accDelta + ", PacketCount: " + packetCount + ", AvgDelta: " + Math.round(accDelta / (double) packetCount) + ", New Delta: " + (Main.timeDelta + Math.round(accDelta / (double) packetCount)));
 		return Math.round(accDelta / (double) packetCount);
 	}
 
